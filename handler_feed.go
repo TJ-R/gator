@@ -44,4 +44,25 @@ func handlerAddFeed (s *state, cmd command) error {
 	return nil
 }
 
+func handlerGetFeeds(s *state, cmd command) error {
+	feeds, err := s.db.GetFeeds(context.Background())
 
+	if err != nil {
+		log.Fatal("Failed to retrieve feeds")
+		os.Exit(1)
+	}
+
+	for _, feed := range feeds {
+		user, err := s.db.GetUserById(context.Background(), feed.UserID)
+		if err != nil {
+			log.Fatal("Failed to get user")	
+			os.Exit(1)
+		}
+
+		fmt.Printf("* %v\n", feed.Name)
+		fmt.Printf("  %v\n", feed.Url)
+		fmt.Printf("  %v\n", user.Name)
+	}
+
+	return nil
+}
