@@ -20,9 +20,7 @@ func (c *commands) run(s *state, cmd command) error {
 		return errors.New(fmt.Sprintf("%s is not a command.", cmd.Args[0]))
 	}
 
-	cmdFunc(s, cmd)
-
-	return nil
+	return cmdFunc(s, cmd)
 }
 
 func (c *commands) register(name string, f func(*state, command) error) {
