@@ -8,6 +8,7 @@ import (
 	"gator/internal/config"
 	"gator/internal/database"
 	"database/sql"
+	"context"
 )
 
 type state struct {
@@ -46,10 +47,11 @@ func main() {
 	commands.register("reset", handlerReset)
 	commands.register("users", handlerGetUsers)
 	commands.register("agg", handlerAggregate)
-	commands.register("addfeed", handlerAddFeed)
+	commands.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	commands.register("feeds", handlerGetFeeds)
-	commands.register("follow", handlerFollowFeeds)
-	commands.register("following", handlerGetFeedFollowsForUser)
+	commands.register("follow", middlewareLoggedIn(handlerFollowFeeds))
+	commands.register("following", middlewareLoggedIn(handlerGetFeedFollowsForUser))
+	commands.register("unfollow", middlewareLoggedIn(handlerRemoveFeedFollow))
 
 	cmd := command{
 		Name: args[1],
@@ -59,5 +61,17 @@ func main() {
 	err = commands.run(&appState, cmd)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	return func(s *state, cmd command) error {
+		user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+		if err != nil {
+			log.Fatal("Failed to retrieve current user")
+			os.Exit(1)
+		}
+
+		return handler(s, cmd, user)
 	}
 }
