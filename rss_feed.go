@@ -12,7 +12,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type RSSFeed struct {
@@ -101,9 +104,36 @@ func scrapeFeeds(s *state) error {
 		return err
 	}
 
-	fmt.Printf("Feed for %+v\n", fetchedFeed.Channel.Title)
 	for _, item := range fetchedFeed.Channel.Item {
-		fmt.Printf("* %v\n", item.Title)
+		publishedAt := sql.NullTime{}
+		if pubTime, err := time.Parse(time.RFC1123Z, item.PubDate); err == nil {
+			publishedAt = sql.NullTime{
+				Time: pubTime,
+				Valid: true,
+			}
+		}
+
+		post, err := s.db.CreatePost(context.Background(), database.CreatePostParams{
+			ID: uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Title: item.Title,
+			Url: item.Link,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid: true,
+			},
+			PublishedAt: publishedAt,
+			FeedID: feed.ID,
+		})
+
+		if err != nil && !strings.Contains(err.Error(), "duplicate") {
+			fmt.Printf("%v\n", err.Error())
+		} 
+
+		if err == nil {
+			fmt.Printf("Post for %v created\n", post.Title)
+		}
 	}
 
 	return nil

@@ -19,7 +19,7 @@ func handlerAggregate(s *state, cmd command) error {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Collecting feeds every %v", timeBetweenReqs)
+	fmt.Printf("Collecting feeds every %v\n", timeBetweenReqs)
 
 	ticker := time.NewTicker(timeBetweenReqs)
 

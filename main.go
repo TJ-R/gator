@@ -52,6 +52,7 @@ func main() {
 	commands.register("follow", middlewareLoggedIn(handlerFollowFeeds))
 	commands.register("following", middlewareLoggedIn(handlerGetFeedFollowsForUser))
 	commands.register("unfollow", middlewareLoggedIn(handlerRemoveFeedFollow))
+	commands.register("browse", middlewareLoggedIn(handlerBrowse))
 
 	cmd := command{
 		Name: args[1],
