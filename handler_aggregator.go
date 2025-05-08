@@ -1,20 +1,29 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
+	"time"
+	"os"
 )
 
-func handlerAggregate (s *state, cmd command) error {
-	rssFeed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
-	if err != nil {
-		log.Fatalf("error fetching feed: %v", err)
+func handlerAggregate(s *state, cmd command) error {
+	if len(cmd.Args) < 1 {
+		return fmt.Errorf("usage: %s <time_between_reqs> (in format of 1s for 1 second)", cmd.Name)
 	}
 
-	fmt.Printf("Feed: %+v\n", rssFeed)
+	timeBetweenReqs, err := time.ParseDuration(cmd.Args[0])
 
-	return nil
+	if err != nil {
+		log.Fatal("Failed to parse duration")
+		os.Exit(1)
+	}
+
+	fmt.Printf("Collecting feeds every %v", timeBetweenReqs)
+
+	ticker := time.NewTicker(timeBetweenReqs)
+
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
 }
-
-

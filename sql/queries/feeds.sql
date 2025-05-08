@@ -21,3 +21,14 @@ DELETE FROM feeds;
 -- name: GetFeeds :many
 SELECT *
 FROM feeds;
+
+-- name: MarkFeedFetched :exec
+UPDATE feeds
+SET last_fetched_at = $2, updated_at = $3
+WHERE id = $1;
+
+-- name: GetNextFeedToFetch :one
+select *
+from feeds
+order by last_fetched_at asc nulls first
+limit 1;

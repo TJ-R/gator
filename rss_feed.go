@@ -3,11 +3,15 @@ package main
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
+	"gator/internal/database"
 	"html"
 	"io"
+	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -56,7 +60,7 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 		return nil, err
 	}
 
-	rssFeed := RSSFeed{}
+	rssFeed := RSSFeed{} 
 	err = xml.Unmarshal(dat, &rssFeed)
 	if err != nil {
 		return nil, err 
@@ -73,4 +77,34 @@ func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	return &rssFeed, nil
 }
 
+func scrapeFeeds(s *state) error {
+	feed, err := s.db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		log.Fatal("Failed to get next feed to fetch")
+		os.Exit(1)
+	}
 
+	s.db.MarkFeedFetched(context.Background(), database.MarkFeedFetchedParams{
+		ID: feed.ID,
+		LastFetchedAt: sql.NullTime{
+			Time: time.Now(),
+			Valid: true,
+		},
+		UpdatedAt: time.Now(),
+	})
+
+	fmt.Printf("Fetching %v...\n", feed.Url)
+
+	fetchedFeed, err := fetchFeed(context.Background(), feed.Url)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Feed for %+v\n", fetchedFeed.Channel.Title)
+	for _, item := range fetchedFeed.Channel.Item {
+		fmt.Printf("* %v\n", item.Title)
+	}
+
+	return nil
+}
