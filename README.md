@@ -22,45 +22,45 @@ Create a config file in home directory called .gatorconfig.json with content lik
 
 # Command List
  - login
-    gator login <username>
-    logins into a registered user
+    - gator login <username>
+    - logins into a registered user
 
 - register
-    gator register <username>
-    register user to the application
+    - gator register <username>
+    - register user to the application
 
 - reset
-    gator reset
-    resets the database tables
+    - gator reset
+    - resets the database tables
 
 - users
-    gator users
-    gets all registered users
+    - gator users
+    - gets all registered users
 
 - agg
-    gator agg <time>
-    pull posts from a registered feeds pulling every <time> interval
+    - gator agg <time>
+    - pull posts from a registered feeds pulling every <time> interval
 
 - addfeed
-    gator addfeed <feed name> <url>
-    adds feed to list of registered feeds
+    - gator addfeed <feed name> <url>
+    - adds feed to list of registered feeds
 
 - feeds
-    gator feeds
-    gets all registered feeds
+    - gator feeds
+    - gets all registered feeds
 
 - follow
-    gator follow <url>
-    follows the feed for the current user
+    - gator follow <url>
+    - follows the feed for the current user
 
 - following
-    gator following
-    gets all feeds that the current user is following
+    - gator following
+    - gets all feeds that the current user is following
 
 - unfollow
-    gator unfollow <url>
-    unfollows the feed for the current user
+    - gator unfollow <url>
+    - unfollows the feed for the current user
 
 - browse
-    gator browse
-    shows all registerd posts from the agg command
+    - gator browse
+    - shows all registerd posts from the agg command
